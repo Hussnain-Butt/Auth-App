@@ -4,14 +4,32 @@ import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const router = useRouter();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (res.error) {
+        setError("Invalid Credentials");
+        return;
+      }
+
+      router.replace("dashboard");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -33,6 +51,7 @@ export default function LoginForm() {
           <button className="bg-green-600 text-white font-bold cursor-pointer px-6 py-2">
             Login
           </button>
+
           {error && (
             <div className="bg-red-500 text-white w-fit text-sm py-1 px-3 rounded-md mt-2">
               {error}
